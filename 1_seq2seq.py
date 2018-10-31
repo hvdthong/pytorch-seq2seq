@@ -49,7 +49,8 @@ class Encoder(nn.Module):
     def forward(self, src):
         # src = [sent len, batch size]
 
-        embedded = self.dropout(self.embedding(src))
+        embedded = self.dropout(self.embedding(src.cuda() if torch.cuda.is_available() else src))
+        # embedded = self.dropout(self.embedding(src))
 
         # embedded = [sent len, batch size, emb dim]
 
@@ -94,8 +95,8 @@ class Decoder(nn.Module):
         input = input.unsqueeze(0)
 
         # input = [1, batch size]
-
-        embedded = self.dropout(self.embedding(input))
+        embedded = self.dropout(self.embedding(input.cuda() if torch.cuda.is_available() else input))
+        # embedded = self.dropout(self.embedding(input))
 
         # embedded = [1, batch size, emb dim]
 
@@ -179,7 +180,11 @@ def train_model(model, iterator, optimizer, criterion, clip):
         # trg = [(sent len - 1) * batch size]
         # output = [(sent len - 1) * batch size, output dim]
 
-        loss = criterion(output[1:].view(-1, output.shape[2]), trg[1:].view(-1))
+        out_src, out_trg = output[1:].view(-1, output.shape[2]), trg[1:].view(-1)
+        loss = criterion(out_src.cuda() if torch.cuda.is_available() else out_src,
+                         out_trg.cuda() if torch.cuda.is_available() else out_trg)
+
+        # loss = criterion(output[1:].view(-1, output.shape[2]), trg[1:].view(-1))
 
         loss.backward()
 
@@ -204,7 +209,11 @@ def evaluate(model, iterator, criterion):
 
             output = model(src, trg, 0)  # turn off teacher forcing
 
-            loss = criterion(output[1:].view(-1, output.shape[2]), trg[1:].view(-1))
+            out_src, out_trg = output[1:].view(-1, output.shape[2]), trg[1:].view(-1)
+            loss = criterion(out_src.cuda() if torch.cuda.is_available() else out_src,
+                             out_trg.cuda() if torch.cuda.is_available() else out_trg)
+
+            # loss = criterion(output[1:].view(-1, output.shape[2]), trg[1:].view(-1))
 
             epoch_loss += loss.item()
 
