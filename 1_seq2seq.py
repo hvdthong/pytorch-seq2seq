@@ -11,8 +11,9 @@ import random
 import math
 import os
 
-import en_core_web_sm
 import nl_core_news_sm
+import en_core_web_sm
+
 
 
 def tokenize_de(text):
