@@ -278,7 +278,7 @@ if __name__ == '__main__':
 
         print(f'| Epoch: {epoch+1:03} | Train Loss: {train_loss:.3f} | Train PPL: {math.exp(train_loss):7.3f} | Val. Loss: {valid_loss:.3f} | Val. PPL: {math.exp(valid_loss):7.3f} |')
 
-    # model.load_state_dict(torch.load(MODEL_SAVE_PATH))
-    # test_loss = evaluate(model, test_iterator, criterion)
-    # print(f'| Test Loss: {test_loss:.3f} | Test PPL: {math.exp(test_loss):7.3f} |')
+    model.load_state_dict(torch.load(MODEL_SAVE_PATH))
+    test_loss = evaluate(model, test_iterator, criterion)
+    print(f'| Test Loss: {test_loss:.3f} | Test PPL: {math.exp(test_loss):7.3f} |')
     # exit()
