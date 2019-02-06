@@ -15,7 +15,6 @@ import nl_core_news_sm
 import en_core_web_sm
 
 
-
 def tokenize_de(text):
     """
     Tokenizes German text from a string into a list of strings and reverses it
@@ -185,7 +184,7 @@ def train_model(model, iterator, optimizer, criterion, clip):
                          out_trg.cuda() if torch.cuda.is_available() else out_trg)
 
         # loss = criterion(output[1:].view(-1, output.shape[2]), trg[1:].view(-1))
-
+        print('Loss value:', torch.tensor(loss).float())
         loss.backward()
 
         torch.nn.utils.clip_grad_norm_(model.parameters(), clip)
@@ -244,15 +243,15 @@ if __name__ == '__main__':
         validation='val',
         test='test2016')
 
-    print(f"Number of training examples: {len(train.examples)}")
-    print(f"Number of validation examples: {len(valid.examples)}")
-    print(f"Number of testing examples: {len(test.examples)}")
+    print("Number of training examples:", len(train.examples))
+    print("Number of validation examples:", len(valid.examples))
+    print("Number of testing examples:", len(test.examples))
     print(vars(train.examples[0]))
 
     SRC.build_vocab(train, min_freq=2)
     TRG.build_vocab(train, min_freq=2)
-    print(f"Unique tokens in source (de) vocabulary: {len(SRC.vocab)}")
-    print(f"Unique tokens in target (en) vocabulary: {len(TRG.vocab)}")
+    print("Unique tokens in source (de) vocabulary:", len(SRC.vocab))
+    print("Unique tokens in target (en) vocabulary:", len(TRG.vocab))
 
     BATCH_SIZE = 128
     train_iterator, valid_iterator, test_iterator = BucketIterator.splits(
@@ -286,8 +285,8 @@ if __name__ == '__main__':
 
     best_valid_loss = float('inf')
 
-    if not os.path.isdir(f'{SAVE_DIR}'):
-        os.makedirs(f'{SAVE_DIR}')
+    if not os.path.isdir('SAVE_DIR'):
+        os.makedirs('SAVE_DIR')
 
     for epoch in range(N_EPOCHS):
 
@@ -298,9 +297,10 @@ if __name__ == '__main__':
             best_valid_loss = valid_loss
             torch.save(model.state_dict(), MODEL_SAVE_PATH)
 
-        print(
-            f'| Epoch: {epoch+1:03} | Train Loss: {train_loss:.3f} | Train PPL: {math.exp(train_loss):7.3f} | Val. Loss: {valid_loss:.3f} | Val. PPL: {math.exp(valid_loss):7.3f} |')
+        print('| Epoch: | Train Loss: | Train PPL: '
+              '| Val. Loss: | Val. PPL: |', epoch + 1, train_loss, math.exp(train_loss), valid_loss,
+              math.exp(valid_loss))
 
     model.load_state_dict(torch.load(MODEL_SAVE_PATH))
     test_loss = evaluate(model, test_iterator, criterion)
-    print(f'| Test Loss: {test_loss:.3f} | Test PPL: {math.exp(test_loss):7.3f} |')
+    print('| Test Loss:  | Test PPL: |', test_loss, math.exp(test_loss))
